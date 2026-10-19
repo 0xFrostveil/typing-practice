@@ -1,0 +1,1336 @@
+<title>打字练习台</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root{
+    /* workspace: modes bar, stat strip, paper plate, keycap deck */
+    --bg:#e9edef;
+    --surface:#f7f9fa;
+    --surface-2:#dfe5e8;
+    --ink:#16222a;
+    --muted:#5d6d78;
+    --line:#ccd5da;
+    --line-strong:#aebbc3;
+    --accent:#0e6f6a;
+    --accent-soft:#d6ece9;
+    --accent-ink:#f3fbfa;
+    --good:#1d7a4c;
+    --bad:#b23a2f;
+    --bad-soft:#f0d2cd;
+    --key-bg:#fcfdfd;
+    --key-edge:#a3b3bc;
+    --key-text:#1f2c35;
+    --radius:14px;
+    --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0f1519;
+      --surface:#161f24;
+      --surface-2:#1d282e;
+      --ink:#e5edf1;
+      --muted:#8da0ab;
+      --line:#26343c;
+      --line-strong:#3b4e59;
+      --accent:#4cc4b9;
+      --accent-soft:#15332f;
+      --accent-ink:#08221f;
+      --good:#5fce96;
+      --bad:#ff8577;
+      --bad-soft:#3a1d19;
+      --key-bg:#1c272e;
+      --key-edge:#080d10;
+      --key-text:#dbe6ec;
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f1519;
+    --surface:#161f24;
+    --surface-2:#1d282e;
+    --ink:#e5edf1;
+    --muted:#8da0ab;
+    --line:#26343c;
+    --line-strong:#3b4e59;
+    --accent:#4cc4b9;
+    --accent-soft:#15332f;
+    --accent-ink:#08221f;
+    --good:#5fce96;
+    --bad:#ff8577;
+    --bad-soft:#3a1d19;
+    --key-bg:#1c272e;
+    --key-edge:#080d10;
+    --key-text:#dbe6ec;
+    color-scheme:dark;
+  }
+
+  *{box-sizing:border-box}
+  html{height:100%}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    padding-left:max(16px, env(safe-area-inset-left, 0px));
+    padding-right:max(16px, env(safe-area-inset-right, 0px));
+    -webkit-font-smoothing:antialiased;
+  }
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .app{
+    max-width:1060px;
+    margin:0 auto;
+    padding-block:18px 26px;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+    min-height:100%;
+  }
+
+  /* header */
+  .top{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px 24px;
+    padding-bottom:14px;
+    border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex;align-items:center;gap:12px;min-width:0}
+  .brandmark{
+    width:40px;height:40px;flex:none;
+    display:grid;place-items:center;
+    border:1px solid var(--line-strong);
+    border-bottom:3px solid var(--key-edge);
+    border-radius:8px;
+    background:var(--key-bg);
+    color:var(--ink);
+    font:600 18px/1 var(--mono);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.55);
+  }
+  .brand h1{
+    margin:0;
+    font:600 17px/1.25 var(--sans);
+    letter-spacing:.02em;
+    text-wrap:balance;
+  }
+  .tagline{
+    margin-top:2px;
+    font:400 12px/1.4 var(--sans);
+    color:var(--muted);
+  }
+  .modes{
+    display:flex;
+    gap:2px;
+    padding:3px;
+    border:1px solid var(--line);
+    border-radius:10px;
+    background:var(--surface);
+  }
+  .mode-btn{
+    appearance:none;
+    border:0;
+    background:transparent;
+    color:var(--muted);
+    font:500 13px var(--sans);
+    padding:7px 16px;
+    border-radius:7px;
+    cursor:pointer;
+    transition:background .12s, color .12s;
+  }
+  .mode-btn:hover{color:var(--ink)}
+  .mode-btn[aria-selected="true"]{background:var(--ink);color:var(--surface)}
+
+  /* controls */
+  .controls{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:10px 18px;
+    font:400 13px var(--sans);
+    color:var(--muted);
+    min-height:30px;
+  }
+  .ctl{display:flex;align-items:center;gap:8px}
+  select{
+    appearance:none;
+    border:1px solid var(--line);
+    border-radius:7px;
+    background:var(--surface);
+    color:var(--ink);
+    font:500 12px var(--sans);
+    padding:6px 26px 6px 10px;
+    cursor:pointer;
+    background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+    background-position:calc(100% - 14px) 52%,calc(100% - 9px) 52%;
+    background-size:5px 5px,5px 5px;
+    background-repeat:no-repeat;
+  }
+  .seg{
+    display:flex;
+    border:1px solid var(--line);
+    border-radius:8px;
+    overflow:hidden;
+    background:var(--surface);
+  }
+  .seg button{
+    appearance:none;border:0;background:transparent;color:var(--muted);
+    font:500 12px var(--sans);padding:6px 13px;cursor:pointer;
+  }
+  .seg button + button{border-left:1px solid var(--line)}
+  .seg button.on{background:var(--surface-2);color:var(--ink)}
+  .switch{display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none}
+  .switch input{accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
+  .hint{
+    margin-left:auto;
+    font:400 12px/1.4 var(--mono);
+    color:var(--muted);
+    white-space:nowrap;
+  }
+
+  /* stats */
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    border-radius:12px;
+    overflow:hidden;
+  }
+  .stat{background:var(--surface);padding:12px 16px;min-width:0}
+  .stat .v{
+    font:600 clamp(19px,2.2vw,26px)/1.1 var(--mono);
+    font-variant-numeric:tabular-nums;
+    color:var(--ink);
+    white-space:nowrap;
+  }
+  .stat .v .suffix{font:500 12px var(--sans);color:var(--muted);margin-left:2px}
+  .stat .k{
+    margin-top:4px;
+    font:500 10px/1.4 var(--sans);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+
+  /* paper */
+  .paper{
+    position:relative;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:clamp(18px,3vw,32px);
+    min-height:clamp(190px,28vh,300px);
+    max-height:52vh;
+    overflow:auto;
+    scrollbar-width:thin;
+  }
+  .paper::before{
+    content:"";
+    position:absolute;
+    inset:0 0 auto 0;
+    height:3px;
+    background:var(--accent);
+    border-radius:var(--radius) var(--radius) 0 0;
+  }
+  .prompt{
+    font-family:var(--mono);
+    font-size:clamp(18px,2.1vw,26px);
+    line-height:2;
+    letter-spacing:.01em;
+    color:var(--muted);
+    white-space:pre-wrap;
+    overflow-wrap:break-word;
+    user-select:none;
+  }
+  .prompt.cjk-mode{
+    font-family:var(--sans);
+    font-size:clamp(17px,1.9vw,22px);
+    line-height:1.95;
+    letter-spacing:.02em;
+  }
+  .prompt .line{white-space:pre-wrap}
+  .prompt .ch{
+    border-radius:3px;
+    transition:color .06s ease, background-color .06s ease;
+  }
+  .prompt .ch.done{color:var(--ink)}
+  .prompt .ch.cur{
+    color:var(--accent);
+    background:var(--accent-soft);
+    box-shadow:inset 0 -2px 0 var(--accent);
+    animation:caret 1.1s steps(1,end) infinite;
+  }
+  .prompt .ch.err{color:var(--bad);background:var(--bad-soft)}
+  .prompt .ch.nl{
+    color:var(--muted);
+    opacity:.55;
+    font-size:.82em;
+    padding:0 .15em;
+  }
+  .prompt .ch.nl.done{opacity:.3}
+  @keyframes caret{
+    0%,55%{box-shadow:inset 0 -2px 0 var(--accent)}
+    56%,100%{box-shadow:inset 0 -2px 0 transparent}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .prompt .ch.cur{animation:none}
+  }
+
+  .cjk{
+    width:100%;
+    margin-top:18px;
+    padding:10px 12px;
+    border:1px solid var(--line);
+    border-radius:9px;
+    background:var(--bg);
+    color:var(--ink);
+    font:400 17px/1.75 var(--sans);
+    resize:none;
+    outline:none;
+  }
+  .cjk::placeholder{color:var(--muted)}
+  .cjk:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+
+  /* result */
+  .result{display:flex;flex-direction:column;gap:18px}
+  .result-head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 30px}
+  .big{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    font:600 clamp(40px,7vw,64px)/.95 var(--mono);
+    color:var(--ink);
+    font-variant-numeric:tabular-nums;
+  }
+  .big .unit{
+    font:500 13px var(--sans);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .result-meta{
+    color:var(--muted);
+    font:400 13.5px/1.6 var(--mono);
+  }
+  .wrong{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:8px;
+    font:400 13px var(--sans);
+    color:var(--muted);
+    min-height:28px;
+  }
+  .chip{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:4px 10px;
+    border:1px solid var(--line);
+    border-radius:999px;
+    background:var(--surface-2);
+    font:500 13px var(--mono);
+    color:var(--ink);
+  }
+  .chip b{color:var(--bad);font-weight:600}
+  .actions{display:flex;flex-wrap:wrap;gap:10px}
+  .btn{
+    appearance:none;
+    border:1px solid var(--line-strong);
+    border-radius:9px;
+    background:var(--surface);
+    color:var(--ink);
+    font:500 14px var(--sans);
+    padding:9px 18px;
+    cursor:pointer;
+    transition:filter .12s, background .12s;
+  }
+  .btn:hover{filter:brightness(.97)}
+  .btn.primary{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+  .best{font:400 13px/1.5 var(--sans);color:var(--muted)}
+
+  /* keyboard */
+  .keyboard{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    padding:14px;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+  }
+  .kb-row{display:flex;gap:5px;min-width:0}
+  .key{
+    position:relative;
+    flex:1 1 0;
+    min-width:0;
+    height:clamp(30px,4.6vw,44px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:1px solid var(--line-strong);
+    border-bottom:3px solid var(--key-edge);
+    border-radius:6px;
+    background:var(--key-bg);
+    color:var(--key-text);
+    font:500 clamp(10px,1.35vw,14px)/1 var(--mono);
+    transition:background .08s, color .08s, transform .08s, border-color .08s;
+  }
+  .key .sub{
+    position:absolute;
+    top:3px;
+    left:5px;
+    font:400 .72em/1 var(--mono);
+    color:var(--muted);
+  }
+  .key.shift,.key.wide{
+    flex:1.8 1 0;
+    font-family:var(--sans);
+    font-size:10px;
+    letter-spacing:.08em;
+    color:var(--muted);
+    text-transform:uppercase;
+  }
+  .key.space{flex:8 1 0;font-family:var(--sans);font-size:10px;letter-spacing:.12em;color:var(--muted)}
+  .key.bump::after{
+    content:"";
+    position:absolute;
+    bottom:5px;
+    left:50%;
+    width:12px;
+    height:2px;
+    margin-left:-6px;
+    border-radius:2px;
+    background:var(--line-strong);
+  }
+  .key.on{
+    background:var(--accent);
+    border-color:var(--accent);
+    border-bottom-color:transparent;
+    color:var(--accent-ink);
+    transform:translateY(2px);
+  }
+  .key.on .sub{color:var(--accent-ink);opacity:.85}
+  .key.need{
+    border-color:var(--accent);
+    color:var(--accent);
+  }
+
+  @media (max-width:640px){
+    .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .hint{display:none}
+    .brandmark{width:34px;height:34px;font-size:15px}
+    .modes{width:100%}
+    .mode-btn{flex:1;padding:8px 0}
+    .paper{padding:18px 16px;max-height:none;min-height:180px}
+    .keyboard{padding:9px;gap:4px;border-radius:10px}
+    .kb-row{gap:3px}
+    .key{height:30px;border-bottom-width:2px;font-size:10px}
+    .key .sub{display:none}
+    .key.shift,.key.wide,.key.space{font-size:9px}
+    .key.bump::after{display:none}
+  }
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <span class="brandmark" aria-hidden="true">A</span>
+      <div>
+        <h1>打字练习台</h1>
+        <div class="tagline">指法 · 英文 · 代码 · 中文</div>
+      </div>
+    </div>
+    <nav class="modes" id="modes" role="tablist" aria-label="练习模式">
+      <button class="mode-btn" type="button" role="tab" data-mode="drill" aria-selected="true">指法</button>
+      <button class="mode-btn" type="button" role="tab" data-mode="words" aria-selected="false">英文</button>
+      <button class="mode-btn" type="button" role="tab" data-mode="code" aria-selected="false">代码</button>
+      <button class="mode-btn" type="button" role="tab" data-mode="chinese" aria-selected="false">中文</button>
+    </nav>
+  </header>
+
+  <div class="controls">
+    <label class="ctl" id="drillCtl">
+      <span>课程</span>
+      <select id="drillCourse">
+        <option value="0">基准键 asdf jkl;</option>
+        <option value="1">基准键 + g h</option>
+        <option value="2">上排 qwerty uiop</option>
+        <option value="3">下排 zxcv bnm , . /</option>
+        <option value="4">全字母</option>
+        <option value="5">数字与 shift 符号</option>
+      </select>
+    </label>
+    <div class="seg" id="wordCtl" hidden>
+      <button type="button" data-style="words" class="on">单词</button>
+      <button type="button" data-style="sentences">句子</button>
+    </div>
+    <label class="switch" id="strictCtl" title="按错必须改正才能继续">
+      <input type="checkbox" id="strict" checked>
+      <span>严格模式</span>
+    </label>
+    <div class="hint">Esc 重开本组 · Tab 换一组</div>
+  </div>
+
+  <section class="stats" aria-label="练习统计">
+    <div class="stat"><div class="v" id="stSpeed">0</div><div class="k" id="stSpeedLabel">WPM</div></div>
+    <div class="stat"><div class="v"><span id="stAcc">100</span><span class="suffix">%</span></div><div class="k">准确率</div></div>
+    <div class="stat"><div class="v" id="stErr">0</div><div class="k">错误</div></div>
+    <div class="stat"><div class="v"><span id="stProg">0</span><span class="suffix">%</span></div><div class="k">进度</div></div>
+  </section>
+
+  <main class="paper" id="paper">
+    <div class="prompt" id="prompt"></div>
+    <textarea class="cjk" id="cjk" rows="2" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="在这里输入中文，错字直接改。按 Esc 重开本组。" hidden></textarea>
+    <div class="result" id="result" hidden>
+      <div class="result-head">
+        <div class="big"><span id="rSpeed">0</span><span class="unit" id="rUnit">WPM</span></div>
+        <div class="result-meta" id="rMeta"></div>
+      </div>
+      <div class="wrong" id="rWrong"></div>
+      <div class="actions">
+        <button class="btn primary" type="button" id="rAgain">重开本组</button>
+        <button class="btn" type="button" id="rNext">换一组</button>
+      </div>
+      <div class="best" id="rBest"></div>
+    </div>
+  </main>
+
+  <section class="keyboard" id="keyboard" aria-label="虚拟键盘"></section>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ---------- data ---------- */
+  const words = s => s.trim().split(/\s+/);
+
+  const W_SHORT = words(`
+    the of and to in a is that it for on with as was at be by this had not are but from or have
+    an they which one you were her all she there would their we him been has when who will more
+    no if out so said what up its into than them can only other new some could time these two
+    may then do first any my now such like our over man me even most made after also did many
+    before must through back years where much your way well down should because each just those
+    people how too little state good very make world still own see men work long get here between
+    both life being under never day same another know while last might us great old year off come
+    since against came right used take three four five six seven eight nine ten ask say need feel
+    seem turn hand night home play run move live learn show hear stop bring begin start help keep
+    hold find tell think call want look give use post big small high low fast slow warm cool dark
+    task code data file line list text page test type byte char loop key row map set sum max min
+  `);
+
+  const W_MED = words(`
+    about above across action actual almost alone along already although always amount answer
+    appear around asked away balance became become before behind believe below better beyond
+    board bring brother build business camera capital career carry center certain chance change
+    check child choice church citizen city class clear close coach college color common company
+    compare complete computer condition consider continue control correct country couple course
+    create culture current customer daughter decide degree deliver describe design detail develop
+    difference different difficult dinner direction discover discuss distance doctor double during
+    early easily economy education effect effort either employee energy enough enter entire
+    environment evening event every example expect experience explain family father feature federal
+    figure final finally financial finish follow force foreign forget former forward friend future
+    garden general girl glass goal government ground group growth guess happen happy health heavy
+    history hospital hotel house hundred husband idea image impact important improve include
+    increase indeed indicate individual industry information inside instead interest interview
+    investment involve issue kitchen language large later laugh leader learn leave letter level
+    light likely listen little machine magazine maintain major manage manager market marriage
+    material matter maybe measure medical meeting member memory mention message method middle
+    million minute mission modern moment money month morning mother movement movie music myself
+    nation national natural nature nearly necessary network newspaper nothing notice number occur
+    offer office officer official often operation opportunity option order organization others
+    outside owner package parent partner patient pattern people percent perfect perhaps period
+    person picture place plan plant player point police policy political popular population
+    position possible power practice prepare present president pressure pretty prevent price
+    private probably problem process produce product program project property protect provide
+    public purpose quality question quickly quite rather reach ready reality realize reason receive
+    recent recognize record reduce reflect region regular relate relationship religious remain
+    remember remove report represent require research resource respond response result return
+    reveal rich right rise risk road rock role room safety scene school science score season
+    second section security senior sense series serious serve service session several shake share
+    short shoulder simple simply single sister situation skill small smile social society soldier
+    someone something sometimes song soon sort sound source south space speak special specific
+    speech spend spirit sport spring staff stage stand standard start station stay step still
+    stock stop store story strategy street strong structure student study style subject success
+    suddenly suffer suggest summer support suppose sure surface system table take talk task
+    teacher team technology tell term test thank theory thing think third though thought thousand
+    threat through throughout throw toward town trade traditional training travel treat trial
+    trip trouble true truth turn type understand unit until upon urban usually value various
+    victim view violence visit voice vote wait walk wall want watch water weapon wear week weight
+    western whatever whether while white whole wide wife window wish within without woman wonder
+    word worker world worry write writer wrong yard year young
+  `);
+
+  const W_LONG = words(`
+    absolute academic according account achieve additional address administration advantage
+    afternoon agreement aircraft analysis announce anything apartment apparent appearance
+    application appreciate approach appropriate approval argument arrange arrival article artist
+    assume attention attitude attract audience authority automatic available average basketball
+    beautiful beginning behavior benefit birthday building business campaign candidate category
+    celebrate century certainly challenge champion character charity chemical clearly climate
+    collection comfortable command comment commercial commission committee community competition
+    complain complex conference confidence confident conflict connect consumer contract contribute
+    convenient conversation cooperate corporate courage creative critical culture curious damage
+    decision decline defense definitely department determine development different difficult
+    digital directly disagree disappear domestic dramatic economic education effective election
+    electric element emergency emphasize encourage engineer enormous establish eventually everybody
+    everyday exactly examine example excellent exchange executive exercise experience expert
+    explain extreme facility familiar famous feeling finally financial foundation freedom friendly
+    further generally guarantee healthy hearing imagine immediately important including independent
+    influence information initial injury institution instruction interesting international
+    introduce investment itself language league library limited majority manager marriage material
+    measure meeting millionaire necessary negative newspaper nobody official painting particular
+    performance perhaps personal physical picture political population positive possible practice
+    prepare president pressure private probably professional property protect public quality
+    question quickly receive recognize relationship religious remember represent require research
+    resource response result return reveal school science season second section security serious
+    service several shoulder significant similar situation social society soldier something
+    sometimes source special specific speech spend spirit sport spring standard station strategy
+    street strong structure student study style subject success suddenly suffer suggest summer
+    support suppose surface system teacher technology television themselves theory thousand
+    throughout tomorrow together tonight toward traditional training travel trouble understand
+    usually various violence western whatever whether without woman wonder worker world worry
+    write writer wrong young yourself
+  `);
+
+  const SENTENCES = `
+The quick brown fox jumps over the lazy dog.
+Pack my box with five dozen liquor jugs.
+A good programmer reads code more often than they write it.
+Small steps every day add up to a long journey.
+The compiler found three warnings and one error.
+Keep your fingers on the home row and your eyes on the screen.
+Accuracy comes before speed, and speed follows accuracy.
+Every function should do one thing and do it well.
+Good naming is half of readable code.
+The train leaves at eight, so we should arrive by seven.
+She said, "Let us ship it on Friday."
+Do not worry about mistakes; worry about not noticing them.
+The library closes at nine on weekdays.
+Practice makes progress, not perfection.
+Memory is cheap, but attention is not.
+A binary tree with n nodes has n minus one edges.
+The sun set behind the hills and the sky turned orange.
+Type slowly and correctly, then let the speed follow.
+A clear question is already half an answer.
+We learn by doing, not by watching.
+The coffee is hot and the keyboard is quiet.
+There is no shortcut to a place worth going.
+Read the error message before you change the code.
+A small test today saves a long debug tomorrow.
+The best time to plant a tree was twenty years ago.
+Keep a notebook of the things you had to look up.
+The internet remembers everything you post.
+Walk for ten minutes when a problem stops making sense.
+A simple solution that works beats a clever one that does not.
+Write the test first and the panic later.
+The screen reflects more than the room behind you.
+Do not trust a number you cannot reproduce.
+The file was last changed on a Tuesday afternoon.
+Nothing is as permanent as a temporary fix.
+Ask three questions before writing one line of code.
+The room was quiet except for the sound of typing.
+A good habit is a decision you only have to make once.
+The rain stopped just before the match began.
+Learn the rules well so you can break them properly.
+Time spent naming things is never wasted.
+The map is not the territory.
+Every expert was once a beginner.
+The key to memory is retrieval, not review.
+A deadline is a useful fiction.
+The mountain does not care how you climb it.
+Read more than you write, and write more than you plan.
+The fastest way to learn is to teach.
+A bug you can reproduce is a bug you can fix.
+Tomorrow is the first day of the rest of the term.
+Keep the windows open; the code will be fine.
+The meeting moved to four in the afternoon.
+Please save your work before you close the lid.
+A quiet desk is a productive desk.
+One hour of focus beats a whole day of scrolling.
+Measure twice and cut once.
+The answer is usually in the second paragraph.
+Try the simplest idea first.
+A comment should explain why, not what.
+Do not optimize what you have not measured.
+The best debugger is a good night of sleep.
+Type it once, read it twice.
+No plan survives first contact with the keyboard.
+The deadline is closer than it looks.
+A tidy folder saves a confused hour.
+The small screen hides more than you think.
+Ask for help before the third hour.
+Good tools do not replace good habits.
+Slow is smooth and smooth is fast.
+Finish one thing before you start the next.
+The blank page is the hardest part.
+Revision is where the writing happens.
+A number without a source is a rumor.
+The bug was a missing semicolon, of course.
+`.trim().split('\n').map(s => s.trim()).filter(Boolean);
+
+  const CODE = [
+`#include <stdio.h>
+
+int main(void) {
+    printf("Hello, world!\\n");
+    return 0;
+}`,
+`int n = 0;
+scanf("%d", &n);
+for (int i = 0; i < n; ++i) {
+    printf("%d ", i * i);
+}`,
+`while (scanf("%d", &x) == 1) {
+    sum += x;
+}`,
+`if (a[i] > b[i]) {
+    swap(&a[i], &b[i]);
+}`,
+`struct Node {
+    int value;
+    struct Node *next;
+};`,
+`char *buf = malloc(n * sizeof(char));
+if (buf == NULL) return 1;`,
+`size_t len = strlen(s);
+for (size_t i = 0; i < len; ++i) {`,
+`int a[10] = {0};
+int *p = &a[0];`,
+`typedef unsigned long long ull;`,
+`switch (ch) {
+case 'a':
+    count++;
+    break;
+default:
+    break;
+}`,
+`#define MAX(a, b) ((a) > (b) ? (a) : (b))`,
+`void swap(int *a, int *b) {
+    int t = *a;
+    *a = *b;
+    *b = t;
+}`,
+`def solve(n):
+    if n <= 1:
+        return n
+    return solve(n - 1) + solve(n - 2)`,
+`for i in range(10):
+    print(i * i)`,
+`data = [x * 2 for x in range(5)]`,
+`with open("in.txt") as f:
+    lines = f.read().splitlines()`,
+`class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y`,
+`d = {}
+for word in words:
+    d[word] = d.get(word, 0) + 1`,
+`nums = sorted(nums)
+left, right = 0, len(nums) - 1`,
+`if __name__ == "__main__":
+    main()`,
+`print(f"sum = {total}")`,
+`result = [i for i in range(n) if i % 2 == 0]`,
+`try:
+    x = int(input())
+except ValueError:
+    print("bad input")`,
+`while head is not None:
+    head = head.next`,
+`import math
+print(math.sqrt(2))`,
+`const arr = [1, 2, 3];
+const sum = arr.reduce((a, b) => a + b, 0);`,
+`if (x === null) return undefined;`,
+`#include <stdlib.h>`
+  ];
+
+  const PASSAGES = [
+`把手指放在基准键上，左手四指依次停在一排中间靠左的四个键上，右手四指停在靠右的四个键上。每敲完一个字母，手指就回到原来的位置，这样下一次移动的距离总是最短的。刚开始会慢，甚至觉得别扭，但坚持几天之后，你会发现眼睛不必再看键盘，手指自己就记得路。`,
+`计算机的内存就像一张巨大的表格，每个格子都有一个编号，这个编号叫作地址。程序读写数据时，先把地址交给处理器，再由内存把对应格子里的内容送回来。缓存的出现，是为了让常用的数据离处理器更近一些，减少等待的时间。`,
+`秋天的校园总是安静得恰到好处。梧桐叶落在地上，踩上去发出轻微的响声，阳光从枝叶的缝隙里漏下来，把小路照得忽明忽暗。图书馆门口的台阶上坐着几个人，有的在背书，有的只是发呆，风吹过的时候，连时间都慢了下来。`,
+`算法是解决问题的步骤。同一道题往往有很多种解法，有的快，有的慢，有的实现起来复杂，有的写出来只要几行。学习算法的意义，不在于记住某一段代码，而在于学会判断：面对一个问题，应该从哪里开始，又该在什么时候停下来。`,
+`泡一杯茶其实用不了多少时间。水烧开以后先晾一会儿，把茶叶放进杯子里，沿着杯壁慢慢倒水，看叶子在水里舒展开来。第一口通常有些烫，第二口才是茶真正的味道。很多事情都是这样，急不得，也慢不得。`,
+`最早的打字机把字母按照字母表顺序排列，可是相邻的键太近，打字员一快就容易卡住。于是有人把常用的字母分开摆放，让手指在两只手之间来回切换，卡键的次数减少了。这样的布局一直沿用到了今天，尽管我们早已不再需要担心卡键。`
+  ];
+
+  const DRILLS = [
+    { name:'基准键 asdf jkl;', set:'asdfjkl;' },
+    { name:'基准键 + g h', set:'asdfgjhkl;' },
+    { name:'上排 qwerty uiop', set:'qwertyuiop' },
+    { name:'下排 zxcv bnm', set:'zxcvbnm,./' },
+    { name:'全字母', set:'abcdefghijklmnopqrstuvwxyz' },
+    { name:'数字与 shift 符号', set:'1234567890!@#$%^&*()' }
+  ];
+
+  /* ---------- dom ---------- */
+  const $ = id => document.getElementById(id);
+  const promptEl = $('prompt');
+  const paperEl = $('paper');
+  const cjkEl = $('cjk');
+  const resultEl = $('result');
+  const keyboardEl = $('keyboard');
+  const drillCtl = $('drillCtl');
+  const wordCtl = $('wordCtl');
+  const strictCtl = $('strictCtl');
+  const strictBox = $('strict');
+  const drillCourse = $('drillCourse');
+  const elSpeed = $('stSpeed');
+  const elSpeedLabel = $('stSpeedLabel');
+  const elAcc = $('stAcc');
+  const elErr = $('stErr');
+  const elProg = $('stProg');
+
+  /* ---------- state ---------- */
+  const state = {
+    mode:'drill',
+    wordStyle:'words',
+    drill:0,
+    strict:true,
+    text:'',
+    idx:0,
+    correct:0,
+    strokes:0,
+    errors:0,
+    wrong:{},
+    start:0,
+    finished:false,
+    matched:0,
+    prevCjkLen:0
+  };
+  let spanMap = [];
+  let curEl = null;
+
+  /* ---------- helpers ---------- */
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  function shuffle(a){
+    for(let i = a.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      const t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  const pickN = (arr, n) => shuffle(arr.slice()).slice(0, n);
+  function pickDifferent(arr){
+    if(arr.length < 2) return arr[0];
+    for(let i = 0; i < 12; i++){
+      const c = pick(arr);
+      if(c !== state.text) return c;
+    }
+    return pick(arr);
+  }
+
+  function makeDrill(){
+    const set = DRILLS[state.drill] ? DRILLS[state.drill].set : DRILLS[0].set;
+    const out = [];
+    let len = 0;
+    while(len < 54){
+      const n = 2 + Math.floor(Math.random() * 4);
+      let tok = '';
+      for(let i = 0; i < n; i++) tok += set[Math.floor(Math.random() * set.length)];
+      out.push(tok);
+      len += n + 1;
+    }
+    return out.join(' ');
+  }
+
+  function freshText(){
+    if(state.mode === 'drill') return makeDrill();
+    if(state.mode === 'words'){
+      if(state.wordStyle === 'sentences') return pickN(SENTENCES, 4).join(' ');
+      const mix = pickN(W_SHORT, 8).concat(pickN(W_MED, 8), pickN(W_LONG, 8));
+      return shuffle(mix).join(' ');
+    }
+    if(state.mode === 'code') return pickDifferent(CODE);
+    return pickDifferent(PASSAGES);
+  }
+
+  function bestKey(){
+    return state.mode === 'words' ? 'words:' + state.wordStyle : state.mode;
+  }
+
+  /* ---------- bests ---------- */
+  const BEST_KEY = 'typingPractice.best.v1';
+  function loadBests(){
+    try { return JSON.parse(localStorage.getItem(BEST_KEY) || '{}') || {}; }
+    catch(e){ return {}; }
+  }
+  function saveBests(obj){
+    try { localStorage.setItem(BEST_KEY, JSON.stringify(obj)); }
+    catch(e){ /* storage unavailable */ }
+  }
+
+  /* ---------- render ---------- */
+  function renderPrompt(text){
+    promptEl.textContent = '';
+    spanMap = new Array(text.length).fill(null);
+    const lines = text.split('\n');
+    let i = 0;
+    for(let li = 0; li < lines.length; li++){
+      const lineEl = document.createElement('div');
+      lineEl.className = 'line';
+      const line = lines[li];
+      for(let j = 0; j < line.length; j++){
+        const s = document.createElement('span');
+        s.className = 'ch';
+        s.textContent = line[j];
+        lineEl.appendChild(s);
+        spanMap[i] = s;
+        i++;
+      }
+      if(li < lines.length - 1){
+        const nl = document.createElement('span');
+        nl.className = 'ch nl';
+        nl.textContent = '↵';
+        lineEl.appendChild(nl);
+        spanMap[i] = nl;
+        i++;
+      }
+      promptEl.appendChild(lineEl);
+    }
+  }
+
+  function scrollCurrent(el){
+    if(!el) return;
+    const pad = 26;
+    const top = el.offsetTop;
+    const bottom = top + el.offsetHeight;
+    if(top < paperEl.scrollTop + pad) paperEl.scrollTop = Math.max(0, top - pad);
+    else if(bottom > paperEl.scrollTop + paperEl.clientHeight - pad){
+      paperEl.scrollTop = bottom - paperEl.clientHeight + pad;
+    }
+  }
+
+  function setCurrent(i){
+    if(curEl) curEl.classList.remove('cur');
+    curEl = null;
+    const s = spanMap[i];
+    if(s){
+      s.classList.add('cur');
+      curEl = s;
+      scrollCurrent(s);
+    }
+    updateKeyHint();
+  }
+
+  function renderStats(){
+    const cjk = state.mode === 'chinese';
+    const elapsed = state.start ? Date.now() - state.start : 0;
+    const min = elapsed / 60000;
+    let speed = 0;
+    if(elapsed >= 500){
+      if(cjk){
+        const chars = state.finished ? state.text.length : state.matched;
+        speed = min > 0 ? Math.round(chars / min) : 0;
+      } else {
+        speed = min > 0 ? Math.round((state.correct / 5) / min) : 0;
+      }
+    }
+    const acc = state.strokes ? (state.correct / state.strokes) * 100 : 100;
+    elSpeed.textContent = speed;
+    elSpeedLabel.textContent = cjk ? '字/分' : 'WPM';
+    elAcc.textContent = acc >= 99.95 ? '100' : acc.toFixed(1);
+    elErr.textContent = state.errors;
+    const prog = state.text.length ? Math.round((state.idx / state.text.length) * 100) : 0;
+    elProg.textContent = Math.min(100, prog);
+  }
+
+  /* ---------- keyboard ---------- */
+  const SHIFT_LABELS = {
+    '`':'~','1':'!','2':'@','3':'#','4':'$','5':'%','6':'^','7':'&','8':'*','9':'(','0':')',
+    '-':'_','=':'+','[':'{',']':'}','\\':'|',';':':',"'":'"',',':'<','.':'>','/':'?'
+  };
+  const SHIFT_MAP = {};
+  Object.keys(SHIFT_LABELS).forEach(base => { SHIFT_MAP[SHIFT_LABELS[base]] = base; });
+  const BASE_CHARS = new Set(['`','-','=','[',']','\\',';',"'",',','.','/']);
+  const kbEls = {};
+  const allKeys = [];
+  const shiftKeys = [];
+
+  function makeKey(ch){
+    const el = document.createElement('div');
+    el.className = 'key';
+    if(ch === 'f' || ch === 'j') el.classList.add('bump');
+    if(SHIFT_LABELS[ch]){
+      const sub = document.createElement('span');
+      sub.className = 'sub';
+      sub.textContent = SHIFT_LABELS[ch];
+      el.appendChild(sub);
+    }
+    const main = document.createElement('span');
+    main.className = 'main';
+    main.textContent = /[a-z]/.test(ch) ? ch.toUpperCase() : ch;
+    el.appendChild(main);
+    kbEls[ch] = el;
+    allKeys.push(el);
+    return el;
+  }
+
+  function makeShift(){
+    const el = document.createElement('div');
+    el.className = 'key shift';
+    el.textContent = 'Shift';
+    shiftKeys.push(el);
+    allKeys.push(el);
+    return el;
+  }
+
+  function buildKeyboard(){
+    keyboardEl.textContent = '';
+    const rows = [
+      ['`','1','2','3','4','5','6','7','8','9','0','-','='],
+      ['q','w','e','r','t','y','u','i','o','p','[',']','\\'],
+      ['a','s','d','f','g','h','j','k','l',';',"'"]
+    ];
+    rows.forEach((row, ri) => {
+      const rowEl = document.createElement('div');
+      rowEl.className = 'kb-row';
+      row.forEach(ch => rowEl.appendChild(makeKey(ch)));
+      if(ri === 1){
+        const enter = document.createElement('div');
+        enter.className = 'key wide';
+        enter.textContent = 'Enter';
+        kbEls['Enter'] = enter;
+        allKeys.push(enter);
+        rowEl.appendChild(enter);
+      }
+      keyboardEl.appendChild(rowEl);
+    });
+
+    const r4 = document.createElement('div');
+    r4.className = 'kb-row';
+    r4.appendChild(makeShift());
+    ['z','x','c','v','b','n','m',',','.','/'].forEach(ch => r4.appendChild(makeKey(ch)));
+    r4.appendChild(makeShift());
+    keyboardEl.appendChild(r4);
+
+    const r5 = document.createElement('div');
+    r5.className = 'kb-row';
+    const space = document.createElement('div');
+    space.className = 'key space';
+    space.textContent = '空格';
+    kbEls[' '] = space;
+    allKeys.push(space);
+    r5.appendChild(space);
+    keyboardEl.appendChild(r5);
+  }
+
+  function keyFor(ch){
+    if(ch === '\n') return { k:'Enter', shift:false };
+    if(ch === ' ') return { k:' ', shift:false };
+    const lower = ch.toLowerCase();
+    if(/[a-z]/.test(lower)) return { k:lower, shift: ch !== lower };
+    if(SHIFT_MAP[ch]) return { k:SHIFT_MAP[ch], shift:true };
+    if(/[0-9]/.test(ch) || BASE_CHARS.has(ch)) return { k:ch, shift:false };
+    return null;
+  }
+
+  function clearHint(){
+    for(const el of allKeys) el.classList.remove('on','need');
+  }
+
+  function updateKeyHint(){
+    clearHint();
+    if(state.mode === 'chinese' || state.finished) return;
+    const ch = state.text[state.idx];
+    if(ch === undefined) return;
+    const m = keyFor(ch);
+    if(!m) return;
+    if(kbEls[m.k]) kbEls[m.k].classList.add('on');
+    if(m.shift) shiftKeys.forEach(el => el.classList.add('need'));
+  }
+
+  /* ---------- typing engine ---------- */
+  function handleChar(ch){
+    if(state.finished) return;
+    const expected = state.text[state.idx];
+    if(expected === undefined) return;
+    if(!state.start) state.start = Date.now();
+    state.strokes++;
+
+    if(ch === expected){
+      state.correct++;
+      const s = spanMap[state.idx];
+      if(s){ s.classList.remove('cur'); s.classList.add('done'); }
+      if(curEl === s) curEl = null;
+      state.idx++;
+      renderStats();
+      if(state.idx >= state.text.length) finishRun();
+      else setCurrent(state.idx);
+    } else {
+      state.errors++;
+      state.wrong[ch] = (state.wrong[ch] || 0) + 1;
+      const s = spanMap[state.idx];
+      if(state.strict){
+        if(s){
+          s.classList.add('err');
+          setTimeout(() => s.classList.remove('err'), 170);
+        }
+      } else {
+        if(s){ s.classList.remove('cur'); s.classList.add('err'); }
+        if(curEl === s) curEl = null;
+        state.idx++;
+        if(state.idx >= state.text.length) finishRun();
+        else setCurrent(state.idx);
+      }
+      renderStats();
+    }
+  }
+
+  function finishRun(){
+    if(state.finished) return;
+    state.finished = true;
+    clearHint();
+    showResult();
+  }
+
+  function showResult(){
+    const cjk = state.mode === 'chinese';
+    const elapsed = state.start ? Date.now() - state.start : 0;
+    const min = Math.max(elapsed / 60000, 1e-6);
+    const speed = cjk
+      ? Math.round(state.matched / min)
+      : Math.round((state.correct / 5) / min);
+    const acc = state.strokes ? (state.correct / state.strokes) * 100 : 100;
+    const unit = cjk ? '字/分' : 'WPM';
+
+    $('rSpeed').textContent = speed;
+    $('rUnit').textContent = unit;
+    $('rMeta').textContent = '准确率 ' + (acc >= 99.95 ? '100' : acc.toFixed(1)) +
+      '% · 错误 ' + state.errors + ' · 用时 ' + (elapsed / 1000).toFixed(1) + ' 秒';
+
+    const wrongEl = $('rWrong');
+    wrongEl.textContent = '';
+    if(!cjk){
+      const top = Object.keys(state.wrong)
+        .map(k => [k, state.wrong[k]])
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
+      if(top.length){
+        const lab = document.createElement('span');
+        lab.textContent = '最常按错：';
+        wrongEl.appendChild(lab);
+        top.forEach(item => {
+          const chip = document.createElement('span');
+          chip.className = 'chip';
+          const b = document.createElement('b');
+          b.textContent = item[0] === ' ' ? '空格' : item[0];
+          chip.appendChild(b);
+          chip.appendChild(document.createTextNode(' × ' + item[1]));
+          wrongEl.appendChild(chip);
+        });
+      } else {
+        const ok = document.createElement('span');
+        ok.textContent = '没有按错的键。';
+        wrongEl.appendChild(ok);
+      }
+    }
+
+    const bestEl = $('rBest');
+    const key = bestKey();
+    const bests = loadBests();
+    const prev = bests[key] || 0;
+    if(speed > prev){
+      bests[key] = speed;
+      saveBests(bests);
+      bestEl.textContent = prev
+        ? '新纪录，之前最好 ' + prev + ' ' + unit + '。'
+        : '首个记录：' + speed + ' ' + unit + '。';
+    } else {
+      bestEl.textContent = '本模式最佳 ' + prev + ' ' + unit + '。';
+    }
+
+    promptEl.hidden = true;
+    cjkEl.hidden = true;
+    resultEl.hidden = false;
+  }
+
+  /* ---------- Chinese mode ---------- */
+  function updateCJK(){
+    if(state.mode !== 'chinese' || state.finished) return;
+    const v = cjkEl.value;
+    if(v.length && !state.start) state.start = Date.now();
+
+    let n = 0;
+    const lim = Math.min(v.length, state.text.length);
+    while(n < lim && v[n] === state.text[n]) n++;
+
+    if(v.length > state.prevCjkLen){
+      for(let k = state.prevCjkLen; k < v.length; k++){
+        state.strokes++;
+        if(k < state.text.length && v[k] === state.text[k]) state.correct++;
+        else state.errors++;
+      }
+    }
+    state.prevCjkLen = v.length;
+    state.matched = n;
+    state.idx = Math.min(v.length, state.text.length);
+
+    for(let i = 0; i < spanMap.length; i++){
+      const s = spanMap[i];
+      if(!s) continue;
+      s.classList.remove('done','cur','err');
+      if(i < n) s.classList.add('done');
+      else if(i === n) s.classList.add(v.length > n ? 'err' : 'cur');
+    }
+    if(spanMap[n]) scrollCurrent(spanMap[n]);
+    renderStats();
+
+    if(v === state.text){
+      state.matched = state.text.length;
+      state.idx = state.text.length;
+      finishRun();
+    }
+  }
+
+  /* ---------- run control ---------- */
+  function syncControls(){
+    drillCtl.hidden = state.mode !== 'drill';
+    wordCtl.hidden = state.mode !== 'words';
+    strictCtl.hidden = state.mode === 'chinese';
+  }
+
+  function resetRun(text){
+    state.text = text;
+    state.idx = 0;
+    state.correct = 0;
+    state.strokes = 0;
+    state.errors = 0;
+    state.wrong = {};
+    state.start = 0;
+    state.finished = false;
+    state.matched = 0;
+    state.prevCjkLen = 0;
+
+    resultEl.hidden = true;
+    promptEl.hidden = false;
+    const cjk = state.mode === 'chinese';
+    cjkEl.hidden = !cjk;
+    keyboardEl.hidden = cjk;
+    promptEl.classList.toggle('cjk-mode', cjk);
+    if(cjk) cjkEl.value = '';
+    paperEl.scrollTop = 0;
+
+    renderPrompt(text);
+    renderStats();
+    setCurrent(0);
+
+    if(cjk) setTimeout(() => cjkEl.focus(), 0);
+  }
+
+  function newSet(){
+    resetRun(freshText());
+  }
+
+  function restartSame(){
+    resetRun(state.text);
+  }
+
+  function setMode(mode){
+    if(state.mode === mode){
+      if(mode === 'chinese' && !state.finished) cjkEl.focus();
+      return;
+    }
+    state.mode = mode;
+    document.querySelectorAll('.mode-btn').forEach(b => {
+      b.setAttribute('aria-selected', String(b.dataset.mode === mode));
+    });
+    syncControls();
+    newSet();
+  }
+
+  /* ---------- events ---------- */
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.blur();
+      setMode(btn.dataset.mode);
+    });
+  });
+
+  document.querySelectorAll('#wordCtl button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.blur();
+      state.wordStyle = btn.dataset.style;
+      document.querySelectorAll('#wordCtl button').forEach(b => {
+        b.classList.toggle('on', b.dataset.style === state.wordStyle);
+      });
+      if(state.mode === 'words') newSet();
+    });
+  });
+
+  drillCourse.addEventListener('change', () => {
+    state.drill = Number(drillCourse.value) || 0;
+    drillCourse.blur();
+    if(state.mode === 'drill') newSet();
+  });
+
+  strictBox.addEventListener('change', () => {
+    state.strict = strictBox.checked;
+  });
+
+  $('rAgain').addEventListener('click', e => { e.currentTarget.blur(); restartSame(); });
+  $('rNext').addEventListener('click', e => { e.currentTarget.blur(); newSet(); });
+
+  promptEl.addEventListener('click', () => {
+    if(state.mode === 'chinese' && !state.finished) cjkEl.focus();
+  });
+
+  cjkEl.addEventListener('input', e => {
+    if(e.isComposing) return;
+    updateCJK();
+  });
+  cjkEl.addEventListener('compositionend', () => updateCJK());
+  cjkEl.addEventListener('keydown', e => {
+    if(e.key === 'Enter' && !e.isComposing) e.preventDefault();
+  });
+
+  document.addEventListener('keydown', e => {
+    if(e.isComposing) return;
+    const tag = e.target && e.target.tagName;
+    if(tag === 'INPUT' || tag === 'SELECT') return;
+
+    if(e.key === 'Escape'){
+      e.preventDefault();
+      restartSame();
+      return;
+    }
+    if(e.key === 'Tab'){
+      e.preventDefault();
+      newSet();
+      return;
+    }
+    if(state.mode === 'chinese') return;
+
+    if(state.finished){
+      if(e.key === 'Enter'){ e.preventDefault(); restartSame(); }
+      return;
+    }
+    if(e.ctrlKey || e.metaKey || e.altKey) return;
+    if(e.key === 'Enter'){
+      if(state.text[state.idx] === '\n'){
+        e.preventDefault();
+        handleChar('\n');
+      }
+      return;
+    }
+    if(e.key.length !== 1) return;
+    e.preventDefault();
+    handleChar(e.key);
+  });
+
+  /* ---------- boot ---------- */
+  buildKeyboard();
+  syncControls();
+  resetRun(freshText());
+  setInterval(() => {
+    if(state.start && !state.finished) renderStats();
+  }, 250);
+})();
+</script>
